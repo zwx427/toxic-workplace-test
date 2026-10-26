@@ -905,13 +905,15 @@ function toast(msg){
   clearTimeout(t._timer);
   t._timer = setTimeout(()=>t.classList.remove('show'), 2200);
 }
-/* ===== Supabase 云端配置（部署时填入；留空则自动使用本地模式） ===== */
-const SUPABASE_URL = '';
-const SUPABASE_ANON_KEY = '';
+/* ===== LeanCloud 云端配置（部署时填入；留空则自动使用本地模式） ===== */
+const LC_ID = '';      // LeanCloud AppID
+const LC_KEY = '';     // LeanCloud AppKey
+const LC_API = '';     // REST API 域名，如 https://xxxx.lc-cn-n1-shared.com
 
 function getStore(){ try{ return JSON.parse(localStorage.getItem('tox_codes')||'{}'); }catch(e){ return {}; } }
 function setStore(s){ try{ localStorage.setItem('tox_codes', JSON.stringify(s)); }catch(e){} }
-function cloudMode(){ return !!(SUPABASE_URL && SUPABASE_ANON_KEY); }
+function cloudMode(){ return !!(LC_ID && LC_KEY && LC_API); }
+function lcHeaders(){ return { 'X-LC-Id': LC_ID, 'X-LC-Key': LC_KEY, 'Content-Type': 'application/json' }; }
 
 /* ================= 激活码 ================= */
 function codeFail(msg){ $('codes-msg').textContent = msg; $('modal-codes').classList.add('show'); }
@@ -926,6 +928,30 @@ function localValidate(code){
   if((store[code]||0) >= MAX_USES){ codeFail('该激活码已测试满 ' + MAX_USES + ' 次，无法再次使用'); return; }
   acceptCode(code);
 }
+/* 云端核销：查码 → 原子自增 → 超发自动回退（并发安全） */
+async function cloudUseCode(code){
+  const where = encodeURIComponent(JSON.stringify({ code: code }));
+  const q = await fetch(LC_API + '/1.1/classes/ToxicCode?where=' + where, { headers: lcHeaders() });
+  const qd = await q.json();
+  if(!qd.results || !qd.results.length) return { ok:false, reason:'not_found' };
+  const rec = qd.results[0];
+  const used = rec.usedCount || 0, max = rec.maxUses || 3;
+  if(used >= max) return { ok:false, reason:'exhausted' };
+  const up = await fetch(LC_API + '/1.1/classes/ToxicCode/' + rec.objectId + '?fetchWhenSave=true', {
+    method:'PUT', headers: lcHeaders(),
+    body: JSON.stringify({ usedCount: { __op:'Increment', amount:1 } })
+  });
+  const ad = await up.json();
+  const nowUsed = (ad.usedCount != null) ? ad.usedCount : used + 1;
+  if(nowUsed > max){
+    fetch(LC_API + '/1.1/classes/ToxicCode/' + rec.objectId, {
+      method:'PUT', headers: lcHeaders(),
+      body: JSON.stringify({ usedCount:{ __op:'Increment', amount:-1 } })
+    });
+    return { ok:false, reason:'exhausted' };
+  }
+  return { ok:true, remaining: Math.max(0, max - nowUsed) };
+}
 async function initCode(){
   const code = $('code-input').value.trim().toUpperCase();
   if(!code){ toast('请先输入激活码'); return; }
@@ -933,16 +959,10 @@ async function initCode(){
   const btn = $('btn-start');
   btn.disabled = true; btn.textContent = '验证中…';
   try{
-    const res = await fetch(SUPABASE_URL + '/rest/v1/rpc/use_code', {
-      method:'POST',
-      headers:{ 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY, 'Content-Type':'application/json' },
-      body: JSON.stringify({ p_code: code })
-    });
-    const data = await res.json();
-    if(res.ok && data && data.ok){ acceptCode(code); }
-    else if(res.ok && data && data.reason === 'exhausted'){ codeFail('该激活码使用次数已用完（每码限 ' + MAX_USES + ' 次）'); }
-    else if(res.ok && data && data.reason === 'not_found'){ codeFail('激活码不存在，请检查后重新输入'); }
-    else { codeFail('云端校验异常（' + res.status + '），请稍后重试或联系客服'); }
+    const d = await cloudUseCode(code);
+    if(d.ok){ acceptCode(code); }
+    else if(d.reason === 'exhausted'){ codeFail('该激活码使用次数已用完（每码限 ' + MAX_USES + ' 次）'); }
+    else { codeFail('激活码不存在，请检查后重新输入'); }
   }catch(e){
     toast('云端连接失败，已切换本地校验模式');
     localValidate(code);
