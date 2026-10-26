@@ -1,0 +1,1199 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>职场毒性测试 | 你的工位还剩几格血？</title>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<style>
+:root{
+  --bg1:#150c2e; --bg2:#2b1655; --bg3:#0d081f;
+  --card:rgba(255,255,255,.07);
+  --line:rgba(167,139,250,.25);
+  --accent:#a78bfa; --accent2:#f472b6; --gold:#fbbf24;
+  --text:#ece7fb; --sub:#a99fc9;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+  background:linear-gradient(160deg,var(--bg1) 0%,var(--bg2) 45%,var(--bg3) 100%);
+  background-attachment:fixed;
+  color:var(--text); overflow-x:hidden;
+}
+#app{max-width:480px;margin:0 auto;min-height:100vh;position:relative;padding-bottom:32px}
+.page{display:none;animation:fadeIn .45s ease both;padding:0 20px}
+.page.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes pop{0%{transform:scale(.85);opacity:0}70%{transform:scale(1.04)}100%{transform:scale(1);opacity:1}}
+@keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+@keyframes pulse{0%,100%{opacity:.55}50%{opacity:1}}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ---------- 通用 ---------- */
+.btn{
+  display:block;width:100%;border:none;cursor:pointer;
+  padding:16px;border-radius:16px;font-size:17px;font-weight:700;letter-spacing:1px;
+  color:#fff;background:linear-gradient(135deg,#8b5cf6,#d946ef);
+  box-shadow:0 8px 24px rgba(139,92,246,.4);
+  transition:transform .15s ease,box-shadow .15s ease;
+}
+.btn:active{transform:scale(.97)}
+.btn.ghost{background:transparent;border:1.5px solid var(--line);box-shadow:none;color:var(--text);font-weight:500}
+.btn.gold{background:linear-gradient(135deg,#f59e0b,#f97316);box-shadow:0 8px 24px rgba(245,158,11,.35)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:20px}
+.tag{display:inline-block;font-size:12px;color:var(--accent);border:1px solid var(--line);border-radius:99px;padding:3px 10px;margin:2px 3px}
+
+/* ---------- 首页 ---------- */
+#page-home{padding-top:0}
+.hero{padding:64px 0 8px;text-align:center}
+.hero .orb{font-size:76px;display:inline-block;animation:floaty 3.2s ease-in-out infinite;filter:drop-shadow(0 10px 22px rgba(167,139,250,.45))}
+.hero h1{
+  margin-top:14px;font-size:34px;font-weight:900;letter-spacing:2px;
+  background:linear-gradient(135deg,#c4b5fd,#f9a8d4 60%,#fbbf24);
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+}
+.hero .sub{margin-top:10px;color:var(--sub);font-size:15px;letter-spacing:1px}
+.hero .stats{margin-top:16px;display:flex;justify-content:center;gap:8px;flex-wrap:wrap}
+.code-box{margin-top:34px}
+.code-box label{display:block;font-size:13px;color:var(--sub);margin:0 4px 10px}
+.code-input{
+  width:100%;padding:16px;border-radius:16px;border:1.5px solid var(--line);
+  background:rgba(255,255,255,.05);color:var(--text);font-size:18px;letter-spacing:3px;
+  text-align:center;outline:none;transition:border .2s;
+}
+.code-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(167,139,250,.15)}
+.code-input::placeholder{letter-spacing:1px;color:#6d6390}
+#btn-start{margin-top:14px}
+.home-tip{margin-top:14px;text-align:center;font-size:12px;color:#8d83b0;line-height:1.8}
+.theory{margin-top:26px;text-align:center}
+.theory p{font-size:11px;color:#7c72a3;line-height:2}
+.friend-card{margin-top:30px;animation:pop .5s ease both}
+
+/* ---------- 答题页 ---------- */
+#page-quiz{padding-top:26px}
+.quiz-top{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--sub)}
+.progress-wrap{margin-top:12px;height:8px;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden}
+#progress-bar{height:100%;width:0%;border-radius:99px;background:linear-gradient(90deg,#8b5cf6,#f472b6);transition:width .35s ease}
+.q-card{margin-top:26px;animation:pop .4s ease both}
+.q-num{font-size:12px;color:var(--accent);letter-spacing:2px}
+.q-text{margin-top:12px;font-size:21px;font-weight:700;line-height:1.65}
+.opts{margin-top:26px;display:flex;flex-direction:column;gap:12px}
+.opt{
+  padding:16px;border-radius:16px;border:1.5px solid var(--line);cursor:pointer;
+  background:rgba(255,255,255,.04);font-size:16px;color:var(--text);
+  transition:all .18s ease;user-select:none;
+}
+.opt:active{transform:scale(.98)}
+.opt:hover,.opt.sel{border-color:var(--accent);background:rgba(167,139,250,.14)}
+.opt .opt-key{display:inline-block;width:24px;height:24px;line-height:24px;text-align:center;border-radius:8px;background:rgba(167,139,250,.18);font-size:12px;margin-right:10px;color:var(--accent)}
+#btn-back{margin-top:22px}
+
+/* ---------- 加载页 ---------- */
+#page-loading{padding-top:0;min-height:100vh;display:none;flex-direction:column;justify-content:center;align-items:center;text-align:center}
+#page-loading.active{display:flex}
+.load-orb{font-size:70px;animation:floaty 2s ease-in-out infinite}
+.load-ring{
+  margin-top:30px;width:56px;height:56px;border-radius:50%;
+  border:4px solid rgba(167,139,250,.2);border-top-color:var(--accent);
+  animation:spin 1s linear infinite;
+}
+#load-tip{margin-top:26px;color:var(--sub);font-size:15px;letter-spacing:1px;animation:pulse 1.6s infinite}
+
+/* ---------- 结果页 ---------- */
+#page-result{padding-top:30px}
+#result-card{
+  background:linear-gradient(170deg,#241247 0%,#1a0f38 55%,#120a29 100%);
+  border:1px solid var(--line);border-radius:26px;overflow:hidden;
+}
+.rc-head{padding:26px 22px 18px;text-align:center;border-bottom:1px dashed rgba(167,139,250,.2)}
+.rc-head .rc-brand{font-size:12px;letter-spacing:4px;color:var(--accent)}
+.rc-head h2{margin-top:8px;font-size:22px;letter-spacing:2px}
+.rc-head .rc-date{margin-top:6px;font-size:11px;color:#8d83b0}
+.rc-body{padding:20px}
+.level-card{border-radius:18px;padding:22px 18px;text-align:center;position:relative;overflow:hidden}
+.level-emoji{font-size:52px;animation:floaty 3s ease-in-out infinite}
+.level-name{margin-top:8px;font-size:24px;font-weight:900;letter-spacing:2px}
+.level-slogan{margin-top:6px;font-size:13px;opacity:.85}
+.level-score{margin-top:14px;display:flex;justify-content:center;align-items:baseline;gap:6px}
+.level-score b{font-size:44px;font-weight:900}
+.level-score span{font-size:12px;opacity:.75}
+.score-track{margin:12px auto 0;max-width:240px;height:6px;border-radius:99px;background:rgba(255,255,255,.15);overflow:hidden}
+.score-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,#34d399,#fbbf24 55%,#f43f5e);transition:width 1s ease .3s}
+
+/* 报告顶部横幅 */
+.rc-banner{
+  margin-top:18px;border-radius:20px;padding:20px 18px;text-align:center;
+  background:linear-gradient(135deg,#8b5cf6 0%,#a855f7 50%,#d946ef 100%);
+  box-shadow:0 10px 30px rgba(139,92,246,.35);position:relative;overflow:hidden;
+}
+.rc-banner::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 80% 10%,rgba(255,255,255,.18),transparent 55%)}
+.rc-banner .rc-banner-label{font-size:11.5px;letter-spacing:3px;opacity:.9}
+.rc-banner .animal-emoji{font-size:64px;margin-top:8px;display:inline-block;animation:floaty 3.2s ease-in-out infinite;filter:drop-shadow(0 10px 20px rgba(0,0,0,.3))}
+.rc-banner h2{margin-top:6px;font-size:26px;font-weight:900;letter-spacing:3px;text-shadow:0 2px 12px rgba(0,0,0,.25)}
+.rc-banner .animal-title{margin-top:4px;font-size:13px;opacity:.95;letter-spacing:1px}
+.rc-date{margin-top:10px;font-size:11px;color:#8d83b0;text-align:center}
+.animal-desc{margin-top:14px;font-size:13.5px;line-height:1.95;color:#d9d2f0}
+.rc-tags{margin-top:14px;display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.rc-tags .t{
+  font-size:12px;color:var(--accent);border:1px solid var(--line);
+  border-radius:99px;padding:5px 12px;background:rgba(167,139,250,.08);
+}
+.rc-stats{margin-top:16px;display:flex;gap:12px}
+.rc-stats .stat{
+  flex:1;border-radius:16px;padding:16px 12px;text-align:center;
+  background:rgba(255,255,255,.05);border:1px solid rgba(167,139,250,.18);
+}
+.rc-stats .stat b{font-size:30px;font-weight:900}
+.rc-stats .stat .s-label{margin-top:6px;font-size:12px;color:var(--sub);line-height:1.6}
+.rc-stats .stat .s-label i{font-style:normal;color:var(--gold)}
+
+/* 编号章节 */
+.sec{margin-top:26px}
+.sec-h{display:flex;align-items:baseline;gap:8px;margin-bottom:14px}
+.sec-h .no{font-size:11px;color:var(--accent);letter-spacing:2px;font-weight:800}
+.sec-h h4{font-size:15.5px;font-weight:800;letter-spacing:1px}
+.sec-h .line{flex:1;height:1px;background:linear-gradient(90deg,var(--line),transparent)}
+.sec p.txt{font-size:13.5px;line-height:2;color:#d9d2f0}
+.sec p.txt b{color:var(--gold)}
+.sec p.txt .hl{color:var(--accent2);font-weight:700}
+
+/* 01 维度得分 */
+.dim-row{margin-bottom:13px}
+.dim-row .dim-head{display:flex;justify-content:space-between;font-size:12.5px;color:#cfc7ea;margin-bottom:6px}
+.dim-row .dim-head b{font-weight:700}
+.dim-track{height:8px;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden}
+.dim-fill{height:100%;border-radius:99px;width:0;transition:width .9s ease}
+
+/* 03 优势标签 */
+.tag-row{margin-top:10px;display:flex;flex-wrap:wrap;gap:8px}
+.tag-row .gt{
+  font-size:12px;color:#86efac;border:1px solid rgba(134,239,172,.35);
+  border-radius:99px;padding:4px 11px;background:rgba(52,211,153,.08);
+}
+/* 04 短板列表 */
+.dot-list{margin-top:10px;display:flex;flex-direction:column;gap:8px}
+.dot-list .li{display:flex;gap:9px;font-size:12.8px;line-height:1.75;color:#d9d2f0}
+.dot-list .li .dot{flex:none;min-width:17px;height:17px;border-radius:5px;font-size:10.5px;display:flex;align-items:center;justify-content:center;margin-top:3px;padding:0 3px}
+.dot-list .li em{font-style:normal;color:var(--gold);font-weight:700}
+.dot-list.violet .li .dot{background:rgba(167,139,250,.16);color:var(--accent)}
+.dot-list.red .li .dot{background:rgba(244,63,94,.18);color:#fb7185}
+.dot-list.blue .li .dot{background:rgba(96,165,250,.18);color:#7dd3fc}
+.dot-list.green .li .dot{background:rgba(52,211,153,.18);color:#6ee7b7}
+/* 05 红色信号卡 */
+.redcard{
+  margin-top:10px;border-radius:14px;border:1px solid rgba(244,63,94,.35);
+  background:rgba(244,63,94,.08);padding:14px 14px 12px;
+}
+.redcard .rc-title{font-size:12.5px;font-weight:800;color:#fb7185;letter-spacing:1px}
+/* 07 解毒方向 */
+.detox-hero{margin-top:4px;display:flex;align-items:center;gap:16px}
+.detox-hero .pct{font-size:42px;font-weight:900;color:#6ee7b7}
+.detox-hero .pct span{font-size:15px}
+.detox-hero .pct-label{font-size:12px;color:var(--sub);line-height:1.7}
+.detox-bars{margin-top:12px}
+.detox-bars .dim-row .dim-head b{color:#6ee7b7}
+/* 09 驯养指南绿卡 */
+.greencard{
+  margin-top:10px;border-radius:14px;border:1px solid rgba(52,211,153,.3);
+  background:rgba(52,211,153,.07);padding:14px 14px 12px;
+}
+.greencard .gc-title{font-size:12.5px;font-weight:800;color:#6ee7b7;letter-spacing:1px}
+/* 10 年度关键词 */
+.keyword-hero{margin-top:6px;text-align:center;padding:20px 0 8px}
+.keyword-hero .kw{
+  font-size:64px;font-weight:900;letter-spacing:6px;line-height:1.2;
+  background:linear-gradient(135deg,#fbbf24,#f472b6);
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+}
+.keyword-hero .kw-sub{margin-top:6px;font-size:11.5px;letter-spacing:3px;color:var(--sub)}
+.rc-foot{padding:18px 22px 24px;text-align:center;border-top:1px dashed rgba(167,139,250,.2)}
+.rc-foot p{font-size:12px;color:#8d83b0;line-height:1.9}
+.rc-foot .rc-foot-brand{color:var(--accent);font-weight:700;letter-spacing:2px}
+.result-actions{margin-top:20px;display:flex;flex-direction:column;gap:12px}
+.result-actions .row{display:flex;gap:12px}
+.result-actions .row .btn{flex:1;padding:14px;font-size:15px}
+.gift-strip{
+  margin-top:16px;text-align:center;font-size:12.5px;color:var(--gold);
+  border:1px dashed rgba(251,191,36,.4);border-radius:14px;padding:12px;
+  background:rgba(251,191,36,.06);cursor:pointer;
+}
+
+/* ---------- 弹窗 / toast ---------- */
+.modal{position:fixed;inset:0;background:rgba(8,4,20,.78);backdrop-filter:blur(4px);display:none;justify-content:center;align-items:center;z-index:99;padding:26px}
+.modal.show{display:flex}
+.modal .sheet{
+  width:100%;max-width:360px;border-radius:24px;padding:28px 22px;text-align:center;
+  background:linear-gradient(165deg,#2c1758,#1a0f38);border:1px solid var(--line);
+  animation:pop .35s ease both;
+}
+.modal .sheet .m-emoji{font-size:54px}
+.modal .sheet h3{margin-top:12px;font-size:19px;letter-spacing:1px}
+.modal .sheet p{margin-top:12px;font-size:13.5px;line-height:2;color:#cfc7ea;text-align:left}
+.modal .sheet p.center{text-align:center}
+.modal .sheet .btn{margin-top:18px}
+.modal .sheet .btn + .btn{margin-top:10px}
+#toast{
+  position:fixed;left:50%;bottom:56px;transform:translateX(-50%) translateY(24px);
+  background:rgba(20,10,45,.94);border:1px solid var(--line);color:var(--text);
+  padding:11px 20px;border-radius:99px;font-size:13.5px;opacity:0;pointer-events:none;
+  transition:all .3s ease;z-index:100;max-width:86vw;text-align:center;
+}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+@media (min-width:520px){
+  body::before{content:"";position:fixed;inset:0;background:rgba(0,0,0,.25);pointer-events:none}
+  #app,body>.modal{filter:none}
+  #app{position:relative;z-index:1}
+}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- 首页 -->
+  <section id="page-home" class="page active">
+    <div class="hero">
+      <span class="orb">🧪</span>
+      <h1>职场毒性测试</h1>
+      <p class="sub">你的工位，还剩几格血？</p>
+      <div class="stats">
+        <span class="tag">48 道职场情境题</span>
+        <span class="tag">8 大毒性维度</span>
+        <span class="tag">8 种职场生存动物</span>
+      </div>
+    </div>
+
+    <div class="card code-box">
+      <label>🔑 请输入激活码（每个激活码可测试 3 次）</label>
+      <input id="code-input" class="code-input" type="text" maxlength="16" placeholder="输入激活码" autocomplete="off">
+      <button id="btn-start" class="btn">开始测试 →</button>
+      <p class="home-tip">没有激活码？店铺下单后客服发放<br>答完 48 题，即可生成你的专属毒性报告</p>
+    </div>
+
+    <div id="friend-card" class="card friend-card" style="display:none">
+      <p style="font-size:12px;color:var(--sub);letter-spacing:1px">👑 好友的检测结果</p>
+      <div style="margin-top:10px;display:flex;align-items:center;gap:14px">
+        <span id="friend-emoji" style="font-size:44px"></span>
+        <div style="text-align:left">
+          <p id="friend-name" style="font-size:17px;font-weight:800"></p>
+          <p id="friend-level" style="font-size:12.5px;color:var(--gold);margin-top:2px"></p>
+        </div>
+      </div>
+      <button id="btn-friend-go" class="btn ghost" style="margin-top:14px;padding:11px;font-size:14px">我也测测我的毒性 →</button>
+    </div>
+
+    <div class="theory">
+      <p>理论支持：JD-R 工作要求-资源模型 · 心理契约理论 · 亚当斯公平理论<br>本测试仅供娱乐与自我觉察，不构成任何医疗建议</p>
+    </div>
+  </section>
+
+  <!-- 答题页 -->
+  <section id="page-quiz" class="page">
+    <div class="quiz-top">
+      <span id="q-progress-text">第 1 / 48 题</span>
+      <span id="q-code-tag">🔑 已激活</span>
+    </div>
+    <div class="progress-wrap"><div id="progress-bar"></div></div>
+    <div class="q-card" id="q-card">
+      <p class="q-num" id="q-num">Q1 · 情绪耗竭</p>
+      <p class="q-text" id="q-text">加载中…</p>
+    </div>
+    <div class="opts" id="opts"></div>
+    <button id="btn-back" class="btn ghost" style="display:none">← 上一题（可修改答案）</button>
+  </section>
+
+  <!-- 加载页 -->
+  <section id="page-loading" class="page">
+    <span class="load-orb">⚗️</span>
+    <div class="load-ring"></div>
+    <p id="load-tip">正在提取你的情绪残留物…</p>
+  </section>
+
+  <!-- 结果页 -->
+  <section id="page-result" class="page">
+    <div id="result-card">
+      <div class="rc-head">
+        <p class="rc-brand">TOXIC WORKPLACE REPORT</p>
+        <h2>你的职场毒性报告</h2>
+        <p class="rc-date" id="rc-date"></p>
+      </div>
+      <div class="rc-body">
+
+        <div class="rc-banner">
+          <p class="rc-banner-label">YOUR TOXIC ANIMAL · 你的毒性动物性格</p>
+          <span class="animal-emoji" id="animal-emoji">🐡</span>
+          <h2 id="animal-name">河豚</h2>
+          <p class="animal-title" id="animal-title"></p>
+        </div>
+        <p class="animal-desc" id="animal-desc"></p>
+        <div class="rc-tags" id="animal-tags"></div>
+
+        <div class="rc-stats">
+          <div class="stat"><b id="stat-toxic">0.0</b><p class="s-label">综合毒性指数 · <i id="stat-level">微毒</i></p></div>
+          <div class="stat"><b id="stat-stable">--%</b><p class="s-label">人格稳定度 · 当前评估</p></div>
+        </div>
+
+        <div class="sec">
+          <div class="sec-h"><span class="no">01</span><h4>你的毒性维度得分</h4><span class="line"></span></div>
+          <div id="dims-list"></div>
+        </div>
+
+        <div class="sec">
+          <div class="sec-h"><span class="no">02</span><h4>维度解读</h4><span class="line"></span></div>
+          <div id="dim-read"></div>
+        </div>
+
+        <div class="sec">
+          <div class="sec-h"><span class="no">03</span><h4>你的职场优势</h4><span class="line"></span></div>
+          <p class="txt" id="strength-text"></p>
+          <div class="tag-row" id="strength-tags"></div>
+        </div>
+
+        <div class="sec">
+          <div class="sec-h"><span class="no">04</span><h4>你的致命短板</h4><span class="line"></span></div>
+          <p class="txt" id="weak-text"></p>
+          <div class="dot-list violet" id="weak-list"></div>
+        </div>
+
+        <div class="sec">
+          <div class="sec-h"><span class="no">05</span><h4>识别你的毒性信号</h4><span class="line"></span></div>
+          <div class="redcard">
+            <p class="rc-title">🔴 红色信号 · 出现以下情况，说明毒性正在飙升</p>
+            <div class="dot-list red" id="signal-list"></div>
+          </div>
+        </div>
+
+        <div class="sec">
+          <div class="sec-h"><span class="no">06</span><h4>你的职场底色</h4><span class="line"></span></div>
+          <p class="txt" id="color-text"></p>
+          <div class="rc-tags" id="color-tags" style="justify-content:flex-start"></div>
+        </div>
+
+        <div class="sec">
+          <div class="sec-h"><span class="no">07</span><h4>你的解毒方向</h4><span class="line"></span></div>
+          <div class="detox-hero">
+            <div class="pct"><span id="detox-pct">0</span><span>%</span></div>
+            <p class="pct-label" id="detox-label"></p>
+          </div>
+          <div class="detox-bars" id="detox-bars"></div>
+          <div class="dot-list green" id="detox-list"></div>
+        </div>
+
+        <div class="sec">
+          <div class="sec-h"><span class="no">08</span><h4>共事预警 & 化解指南</h4><span class="line"></span></div>
+          <p class="txt"><b>合作必读：</b>与你的「天克」类型过招前，请务必阅读以下条款。</p>
+          <div class="dot-list blue" id="coop-list"></div>
+        </div>
+
+        <div class="sec">
+          <div class="sec-h"><span class="no">09</span><h4>给身边人的相处指南</h4><span class="line"></span></div>
+          <div class="greencard">
+            <p class="gc-title">🌱 驯养手册 · 如果你身边有一只「<span id="tame-animal"></span>」</p>
+            <div class="dot-list green" id="tame-list"></div>
+          </div>
+        </div>
+
+        <div class="sec">
+          <div class="sec-h"><span class="no">10</span><h4>你的年度关键词</h4><span class="line"></span></div>
+          <div class="keyword-hero">
+            <div class="kw" id="kw-big">稳</div>
+            <p class="kw-sub">YOUR WORD OF THE YEAR</p>
+          </div>
+          <p class="txt" id="kw-text"></p>
+          <div class="dot-list violet" id="kw-list"></div>
+        </div>
+
+      </div>
+      <div class="rc-foot">
+        <p class="rc-foot-brand">职场毒性测试 🧪</p>
+        <p id="rc-foot-line">测测你的工位还剩几格血 →</p>
+      </div>
+    </div>
+
+    <div class="result-actions">
+      <button id="btn-save" class="btn">📸 保存长图到相册</button>
+      <div class="row">
+        <button id="btn-share" class="btn ghost">🔗 复制链接分享</button>
+        <button id="btn-retest" class="btn ghost">🔄 再测一次</button>
+      </div>
+    </div>
+    <div class="gift-strip" id="gift-strip">🎁 好评有礼：店铺好评后联系客服，领新测试题 →</div>
+  </section>
+
+</div>
+
+<!-- 好评有礼弹窗 -->
+<div class="modal" id="modal-gift">
+  <div class="sheet">
+    <div class="m-emoji">🎁</div>
+    <h3>好评有礼</h3>
+    <p class="center">动动手指，解锁新题库！</p>
+    <p>1️⃣ 前往下单店铺，给本测评一个五星好评<br>
+       2️⃣ 联系客服，发送好评截图<br>
+       3️⃣ 客服核验后，即刻发放<b style="color:var(--gold)">全新测试题激活码</b></p>
+    <button class="btn" id="btn-gift-ok">我知道了</button>
+  </div>
+</div>
+
+<!-- 激活码错误弹窗 -->
+<div class="modal" id="modal-codes">
+  <div class="sheet">
+    <div class="m-emoji">🚫</div>
+    <h3>激活码不可用</h3>
+    <p class="center" id="codes-msg">该激活码不存在或使用次数已用完（每码限 3 次）</p>
+    <p class="center" style="margin-top:14px;font-size:12.5px;color:var(--sub)">需要新的激活码？店铺下单后联系客服领取<br>好评还能白嫖新题库哦 🎁</p>
+    <button class="btn" id="btn-codes-ok">返回</button>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+/* ================= 数据 ================= */
+const DIMENSIONS = [
+  {key:'emotion',  name:'情绪耗竭', short:'情绪'},
+  {key:'overload', name:'工作过载', short:'过载'},
+  {key:'fairness', name:'公平失衡', short:'公平'},
+  {key:'meaning',  name:'价值迷失', short:'价值'},
+  {key:'boundary', name:'边界失守', short:'边界'},
+  {key:'relation', name:'关系内耗', short:'关系'},
+  {key:'growth',   name:'成长停滞', short:'成长'},
+  {key:'control',  name:'控制剥夺', short:'控制'}
+];
+
+/* 48 题：d=维度 t=题目 r=true 表示反向计分 */
+const QUESTIONS = [
+  {d:'emotion', t:'下班之后我感到情绪被掏空，什么都不想做', r:false},
+  {d:'emotion', t:'周日晚上想到明天要上班，心里会莫名发沉', r:false},
+  {d:'emotion', t:'我在工作里越来越难感到快乐', r:false},
+  {d:'emotion', t:'即使工作再忙，我也能很快恢复好心情', r:true},
+  {d:'emotion', t:'睡前我脑子里还在反复过白天工作的糟心事', r:false},
+  {d:'emotion', t:'周末即使休息了，我的疲惫感也很难缓解', r:false},
+
+  {d:'overload', t:'我的任务量多到正常下班时间根本做不完', r:false},
+  {d:'overload', t:'我经常被临时塞进各种「顺便帮个忙」的需求', r:false},
+  {d:'overload', t:'我的工作日几乎被会议和琐事切得粉碎', r:false},
+  {d:'overload', t:'我的工作量在我能轻松消化的范围内', r:true},
+  {d:'overload', t:'我同时推进的任务多到经常顾此失彼', r:false},
+  {d:'overload', t:'领导给我的期限，常常紧张到不现实', r:false},
+
+  {d:'fairness', t:'同样强度的活，我的回报明显比身边人低', r:false},
+  {d:'fairness', t:'我做过的工作贡献，常常被别人领了功劳', r:false},
+  {d:'fairness', t:'晋升和加薪的机会，似乎总轮不到我', r:false},
+  {d:'fairness', t:'我认为公司对我的付出给予了公平的回报', r:true},
+  {d:'fairness', t:'身边的「会哭的孩子」总有糖吃，而我不会哭', r:false},
+  {d:'fairness', t:'年终评优时，我的付出和得到的认可不匹配', r:false},
+
+  {d:'meaning', t:'我说不清自己每天的工作到底创造了什么价值', r:false},
+  {d:'meaning', t:'我觉得自己像流水线上的螺丝钉，随时可替换', r:false},
+  {d:'meaning', t:'我已经很久没有为完成工作而感到自豪', r:false},
+  {d:'meaning', t:'我很清楚自己的工作正在创造价值', r:true},
+  {d:'meaning', t:'我的工作内容和入职时的期待差距很大', r:false},
+  {d:'meaning', t:'如果不考虑工资，我不会选择现在这份工作', r:false},
+
+  {d:'boundary', t:'下班后我也常被工作消息随时「召唤」', r:false},
+  {d:'boundary', t:'我的假期经常被打断，很难真正离线', r:false},
+  {d:'boundary', t:'面对领导或同事的要求，我不敢说「不」', r:false},
+  {d:'boundary', t:'下班后我完全可以不管工作上的事', r:true},
+  {d:'boundary', t:'为了工作，我放弃过很多重要的私人安排', r:false},
+  {d:'boundary', t:'我的生活节奏长期围着工作转', r:false},
+
+  {d:'relation', t:'我的团队里，甩锅和抢功是常事', r:false},
+  {d:'relation', t:'和某些同事协作前，我需要反复做「心理建设」', r:false},
+  {d:'relation', t:'我开会时说过的话，经常被无视或否定', r:false},
+  {d:'relation', t:'我和同事之间的协作轻松愉快', r:true},
+  {d:'relation', t:'遇到问题，大家的第一反应是「这不归我管」', r:false},
+  {d:'relation', t:'我感觉在职场里很难交到真朋友', r:false},
+
+  {d:'growth', t:'我现在的岗位已经很久没有新挑战了', r:false},
+  {d:'growth', t:'我感觉自己的技能在原地踏步甚至退步', r:false},
+  {d:'growth', t:'我每天都能从工作中学到新东西', r:true},
+  {d:'growth', t:'我做的工作大多是重复性的机械劳动', r:false},
+  {d:'growth', t:'我看不清自己在公司里的成长路径', r:false},
+  {d:'growth', t:'一想到「三年后的自己还在这里」，我就感到恐慌', r:false},
+
+  {d:'control', t:'我的工作怎么干、按什么节奏干，都由别人决定', r:false},
+  {d:'control', t:'目标经常变，我的努力总是被打断重置', r:false},
+  {d:'control', t:'我提的想法和建议，基本不会被采纳', r:false},
+  {d:'control', t:'我对自己的工作内容和节奏有充分的掌控', r:true},
+  {d:'control', t:'我感觉像被无形的手推着走，身不由己', r:false},
+  {d:'control', t:'重要决策总是绕过我，但后果要我来承担', r:false}
+];
+
+/* 8 种职场生存动物 */
+const ANIMALS = {
+  emotion: {
+    emoji:'🐡', name:'河豚', title:'深海情绪反应堆',
+    desc:'表面圆滚滚岁月静好，实际上全身都是扳机。平时你什么都能忍，忍到某个瞬间「砰」地炸成刺球——全办公室都知道，你今天不好惹。',
+    dims:['情绪耗竭 MAX','爆发前超级安静','炸完又恢复可爱'],
+    tags:['现代职场困兽','忍术十级','随机爆炸','炸后自愈'],
+    stability:38,
+    strengths:'你的情绪感知力是团队的天花板——气氛不对、同事低落、需求有坑，你总是第一个察觉。你的爆炸从来不是无理取闹，而是在替迟钝的团队提前预警。',
+    strengthsTags:['情绪雷达敏锐','共情力强','底线清晰','真诚不装'],
+    colorText:'在同事眼里，你是那个「平时超好说话、突然原地爆炸」的谜之存在。你的职场底色是「忍」——忍到极限，标签就变成了「爆」，中间隔着一整个委屈库。',
+    detoxPct:45, detoxBars:[['情绪管理',35],['表达力',45],['拒绝力',30]],
+    detoxTips:['收到「帮个小忙」先回「我看下排期」，给自己30分钟冷静期','每周固定一天「准时消失日」，训练同事尊重你的下班时间','把「我不行」换成「我这周排满了」——拒绝不需要解释理由'],
+    coop:['你的克星是仓鼠型同事：无限塞活+卖惨微笑，专治你的「不好意思拒绝」','化解条款：帮忙请求一律延迟30分钟答复，让冲动先降温','高压条款：你的爆炸赶不走塞活的人，但拒绝可以'],
+    tame:['别在TA爆炸时讲道理——先递水，等气压降下来再复盘','TA说第三次「没关系」时请立刻介入，那是倒计时','定期主动问TA的工作量，比事后道歉有用一百倍'],
+    fatal:'情绪账户只进不出。你说的每一句「没关系」「都可以」，都是在给炸药桶添柴。而爆发的导火索，往往小到离谱——外卖洒了、打印卡纸了、群里有人@你了。',
+    fatalQuote:'病历记录：上一次爆炸的起点，是同事用了你的杯子没洗。',
+    countdown:'距离下一次当场爆炸：约 <em>11 个工作日</em>。但每次炸完你又会心软原谅他们——无限循环，永动式生气。',
+    countdownQuote:'爆炸不可怕，可怕的是爆炸完还得回工位继续加班。',
+    nemesis:'仓鼠 🐹——它把自己的活往你腮帮子里塞的时候，永远带着「你人最好了」的微笑，而你每次都接。',
+    nemesisQuote:'它塞一次，你忍一次，直到某天你把它当成导火索一起炸。',
+    keyword:'「<em>憋</em>」',
+    keywordText:'这一年，你憋出了 <span class="hl">168 次</span>内心咆哮，实际说出口的只有 3 句「好的收到」。你的嘴替在别处，你的血压在自己身上。',
+    fatalScenes:[
+      '早上挤不进电梯或迟到一分钟，全天情绪进度条直接红温',
+      '开会被当面否定，嘴上说「好的我改」，指甲已经掐进掌心',
+      '下班前5分钟被塞需求，笑容逐渐消失，转身深呼吸三次'
+    ],
+    countdownStages:[
+      '<em>0-30%</em>：情绪池开始沸腾，你已经在跟工位上的绿萝说话了',
+      '<em>31-70%</em>：打字力度惊人，「呵呵」和「好的」开始高频出现',
+      '<em>71-100%</em>：草稿箱里躺着三封没发出去的辞职信，措辞一次比一次狠'
+    ],
+    nemesisWhy:'仓鼠的生存法则是「先塞为敬」，而河豚的法则是「忍到极限」——一个无限加压，一个容积有限，物理规律早就决定了终局。',
+    nemesisTips:[
+      '收到「帮个小忙」时，先回「我看下排期」，给自己争取30分钟冷静期',
+      '每周固定一天「准时消失日」，训练同事对你的下班时间有边界认知'
+    ],
+    keywordMoments:[
+      '<em>3月</em>：在厕所隔间深呼吸47次，出来继续微笑营业',
+      '<em>7月</em>：把「随便」打出来又删掉，改成「都行，听你的」',
+      '<em>12月</em>：年终汇报全程平静，散会后在楼梯间干吼了10秒'
+    ]
+  },
+  overload: {
+    emoji:'🐹', name:'仓鼠', title:'人形任务收纳器',
+    desc:'腮帮子里塞满了别人塞的任务，两个仓囊已经鼓到透明。路过的人还以为你很闲，继续往里加。你不是能干，你是不敢不干。',
+    dims:['过载爆表','来者不拒','下班也停不下来'],
+    tags:['人形任务黑洞','有求必应','日程超载','透明人绩效'],
+    stability:52,
+    strengths:'你是团队里最让人放心的人——事情交给你，等于「已完成」。你的执行力、责任心和多线程能力，是整个团队的隐形基础设施。',
+    strengthsTags:['执行力满级','责任心爆棚','多线程处理','团队粘合剂'],
+    colorText:'在同事眼里，你是「什么都能塞给TA」的安全选项。你的职场底色是「接」——你用忙碌换存在感，用加班换安全感，唯独忘了问值不值。',
+    detoxPct:40, detoxBars:[['任务取舍',25],['优先级管理',40],['拒绝力',20]],
+    detoxTips:['把任务清单贴在屏幕边「可视化」，来塞活的人自己会掂量','接活前必问「这个排在哪个任务前面」，让派活的人自己排序','每天下班前列「明日三件事」，其余一律明说「明天排」'],
+    coop:['你的克星是骡子型上级：只派活不给资源，还默认你「小Case」','化解条款：接活时当面确认优先级，让TA自己决定砍哪个','高压条款：你不是人手不够，是不好意思让活等'],
+    tame:['给TA派活请给出截止时间和优先级，别用「尽快」','TA说「忙不过来」是事实陈述，不是抱怨','帮TA挡掉一个「顺便的需求」，TA会记你一辈子'],
+    fatal:'不会说「不」。别人一句「帮个小忙」，你就把整个周末搭进去。你的待办清单比你的工资条长得多，而且只有一条会涨。',
+    fatalQuote:'你的待办清单如果是实体，现在已经压塌三层楼了。',
+    countdown:'距离彻底塞爆：约 <em>23 天</em>——前提是没有人在你下班前 5 分钟，再丢一个「急、今天要」的需求过来。',
+    countdownQuote:'你最大的职业危机，是你的嘴总是比你的心先说「好」。',
+    nemesis:'骡子 🐴——它把方向盘和鞭子一起递给你：「这些你来盯一下，我去开个会。」然后开会的内容，就是怎么给你派新活。',
+    nemesisQuote:'它负责画饼，你负责吃饼，顺便负责把饼做出来。',
+    keyword:'「<em>接</em>」',
+    keywordText:'全年接下 <span class="hl">214 个</span>「顺便」需求，其中 <span class="hl">0 个</span>算进你的绩效。你是团队的活雷锋，也是工资条上的透明人。',
+    fatalScenes:[
+      '每次说「我忙不过来」，对方的回复都是「那再加个简单的」',
+      '自己手上的活没干完，已经在操心别人的项目黄了没',
+      '请假当天工作群炸出99+，休完假加班三天才填完坑'
+    ],
+    countdownStages:[
+      '<em>0-30%</em>：腮帮子还能塞，用「熟练了就好了」骗自己',
+      '<em>31-70%</em>：开始做梦都在回复「收到」，周末手机一震动就心悸',
+      '<em>71-100%</em>：一边贴膏药一边说「没事」，体检报告比KPI先亮红灯'
+    ],
+    nemesisWhy:'骡子只负责派活不负责落地，而仓鼠见不得事情没人接——一个甩得心安理得，一个接得条件反射，堪称完美闭环。',
+    nemesisTips:[
+      '把任务清单贴在屏幕边「可视化工作量」，来塞活的人自己会掂量',
+      '接活前必问一句「这个排在哪个任务前面」，让派活的人自己排序取舍'
+    ],
+    keywordMoments:[
+      '<em>4月</em>：同时开8个窗口回复「好的马上」，手速封神',
+      '<em>9月</em>：帮同事救火三天，自己的活通宵两晚补完',
+      '<em>12月</em>：年终总结写满两页，绩效评级里的贡献一栏只有半行'
+    ]
+  },
+  fairness: {
+    emoji:'🦡', name:'蜜獾', title:'办公室平头哥',
+    desc:'眼里揉不得一粒沙。别人领了你的功劳？当场开团。规则双标？直接对线。你是公司里「不好惹」三个字的实体担当，是会议室里最锋利的那根刺。',
+    dims:['公平执念满级','当场开团','气场压制全场'],
+    tags:['办公室平头哥','规则纪检委','当场开团','赢了道理'],
+    stability:60,
+    strengths:'你是团队里最稀缺的「公平守门员」。你敢说真话、敢对不公开炮，你的存在让甩锅者收敛、让摸鱼者忌惮，是团队正义的实体化。',
+    strengthsTags:['敢说真话','原则性强','战斗力爆表','正义担当'],
+    colorText:'在同事眼里，你是「惹不起但靠得住」的存在。你的职场底色是「直」——黑就是黑白就是白，你活得像公司里行走的纪检委。',
+    detoxPct:55, detoxBars:[['策略性',50],['情绪隔离',45],['借力打力',40]],
+    detoxTips:['对线变色龙只用邮件和群聊，口头承诺一律「发我一下」','别学它转弯——你的核心竞争力是直，但对事不对人','对线前先问：这事值得我多少电量？只打值得的仗'],
+    coop:['你的克星是变色龙型同事：当面一套背后一套，还能全身而退','化解条款：所有承诺留痕、邮件抄送，让变色龙无处变色','高压条款：赢了道理是本能，赢了局面才是本事'],
+    tame:['跟TA讲规则前，先确保规则对所有人适用','别在TA面前玩双标——一次就会失去TA的全部信任','TA怼的是事不是人，对完线该吃吃该喝喝'],
+    fatal:'太较真。你花在「讨个说法」上的精力，够别人升职加薪两轮了。世界不会因为你的怒吼就变公平，但会因为你太吵而给你调岗。',
+    fatalQuote:'你主持的最后一次对线，赢了道理，输了氛围分。',
+    countdown:'距离拍桌走人：约 <em>45 天</em>——但你会先用 44 天把道理讲清楚，最后一天用来写辞职信（附证据清单）。',
+    countdownQuote:'你不是不能忍，你只是不屑于忍。',
+    nemesis:'变色龙 🦎——它在领导面前一套、背后一套，而你两套都是同一套。它最怕你这种账算得太清的人。',
+    nemesisQuote:'你俩同框 = 公司普法现场，同事们搬好小板凳。',
+    keyword:'「<em>刚</em>」',
+    keywordText:'全年发起 <span class="hl">37 次</span>公平对线，赢了 5 次，记住了 <span class="hl">32 个</span>名字。公司要是设「年度较真奖」，你连任十年。',
+    fatalScenes:[
+      '汇报会上功劳被张冠李戴，你在提问环节直接开团',
+      '看到「能力不如你」的同事先晋升，血压当天冲顶',
+      '领导说「年轻人不要计较」，你把这句话记进了对线清单'
+    ],
+    countdownStages:[
+      '<em>0-30%</em>：讲道理阶段，引用制度条文，有理有据有出处',
+      '<em>31-70%</em>：留证据阶段，聊天记录截图、邮件确认样样齐全',
+      '<em>71-100%</em>：摊牌阶段，工资条拿在手里，猎头邮箱已经备好'
+    ],
+    nemesisWhy:'变色龙靠信息差生存，蜜獾靠事实差生存——它最怕你把聊天记录摆上桌面，你最烦它把黑的说成灰的。你们是天生的庭审对手。',
+    nemesisTips:[
+      '对线变色龙永远只用邮件和群聊，口头承诺一律要求「发我一下」',
+      '别学它转弯，你的核心竞争力就是直——但要始终对事，不对人'
+    ],
+    keywordMoments:[
+      '<em>2月</em>：帮新同事讨回被抢的功劳，一战封神',
+      '<em>6月</em>：制度对线失败，但赢得了全组人的暗中叫好',
+      '<em>11月</em>：把「按贡献分配」写进了给HR的反馈表，字字千钧'
+    ]
+  },
+  meaning: {
+    emoji:'🦥', name:'树懒', title:'低电量模式常驻选手',
+    desc:'意义感已经连续掉线 300 天。你挂在工位这棵树上，用 0.5 倍速营业，内心 OS 只有一个字：为什么。你不是懒，你只是找不到动的理由。',
+    dims:['意义感掉线','0.5 倍速营业','节能模式常开'],
+    tags:['低电量选手','意义感欠费','0.5倍速营业','精神离职'],
+    stability:88,
+    strengths:'你是团队里最稳的存在——不抢功、不内耗、不搞事。你淡淡的松弛感，是全员焦虑时最珍贵的情绪定海神针。',
+    strengthsTags:['情绪稳定','松弛感拉满','不卷不躁','内心清醒'],
+    colorText:'在同事眼里，你是「不知道在想什么但看着很平静」的存在。你的职场底色是「省电」——营业但不走心，出勤但不出魂。',
+    detoxPct:30, detoxBars:[['意义感重建',25],['目标感',30],['行动力',20]],
+    detoxTips:['别和仓鼠比忙，你比的是清醒——定期问「我到底想要什么」','每月做一件小事找回意义感：学个小技能、写份总结','把「这有什么意义」换成「做完这步我能得到什么」'],
+    coop:['你的克星是仓鼠型同事：TA的卷不是激励，是让你更想挂回树上','化解条款：离内卷现场远一点，你的节奏感比冲刺力值钱','高压条款：你不是不能跑，只是还没找到想去的方向'],
+    tame:['别用「你要有狼性」激励TA，TA会当场灵魂出窍','给TA的工作接上意义：这事帮到了谁、改变了什么','TA慢，但想明白后会走得比谁都远'],
+    fatal:'用「没意义」喂养「不想动」，再用「不想动」印证「没意义」。你不是不能跑，是找不到跑的理由——而理由不会自己来找你。',
+    fatalQuote:'你的工位已申请挂牌：省级保护动物栖息地。',
+    countdown:'距离真的离开：<em>未知</em>。你连辞职信都只写了个「尊敬的」三个字，然后挂机了三个月。',
+    countdownQuote:'你不是没想过走，你是连「想」这个动作都想省了。',
+    nemesis:'仓鼠 🐹——它疯狂内卷的样子，非但没卷到你，反而衬得你这棵树更香了。',
+    nemesisQuote:'它卷它的，你挂你的，岁月静好，互不打扰。',
+    keyword:'「<em>省电</em>」',
+    keywordText:'全年电量从未超过 <span class="hl">40%</span>，但从未关机。你用最低的能耗，撑完了最长的班——这何尝不是一种行为艺术。',
+    fatalScenes:[
+      '开会被@三次才回神，PPT翻到自己都不知道讲到哪了',
+      '看到招聘软件的推送，划了两下又放下——懒得改简历',
+      '别人聊升职加薪，你在算今天几点能下班'
+    ],
+    countdownStages:[
+      '<em>0-30%</em>：电量低于40%，但打卡从未缺席，敬业得可疑',
+      '<em>31-70%</em>：开始用摸鱼填补意义缺口，一天刷83次辞职帖',
+      '<em>71-100%</em>：树挂得更稳了，连「想走」的念头都懒得存草稿'
+    ],
+    nemesisWhy:'仓鼠卷得越狠，越衬得你这棵树舒服——它的存在不是刺激你，而是给你提供了「看，卷也没有更好」的绝佳论据。你们互为借口。',
+    nemesisTips:[
+      '别和仓鼠比谁忙，你比的是谁清醒——定期问自己「我到底想要什么」',
+      '每月做一件小事找回意义感：学个小技能、写份总结，哪怕只发个朋友圈'
+    ],
+    keywordMoments:[
+      '<em>5月</em>：会上发表了一句真知灼见，从此再没被点过名',
+      '<em>8月</em>：收藏了127篇「如何找到工作意义」，一篇没读',
+      '<em>12月</em>：体检一切正常，医生夸你心态好，你说「躺得平」'
+    ]
+  },
+  boundary: {
+    emoji:'🐱', name:'布偶猫', title:'公司公有财产',
+    desc:'软到没有骨头。下班消息你秒回，周末需求你照接，别人甩的锅你顺手就接住了。你是全公司最好 rua 的那只猫，也是被拿捏得最稳的那只。',
+    dims:['边界全面沦陷','秒回十级选手','温柔到发亏'],
+    tags:['公司公有财产','秒回十级','温柔可欺','锅从天上来'],
+    stability:45,
+    strengths:'你是团队里最受欢迎的人——好说话、靠得住、不设防。你的温柔让所有人都舒服，你是办公室的团宠，兼任任劳任怨的老黄牛。',
+    strengthsTags:['人缘极佳','配合度高','情绪温柔','靠谱担当'],
+    colorText:'在同事眼里，你是「永远不会拒绝」的存在。你的职场底色是「好」——你把所有人都照顾得很好，除了你自己。',
+    detoxPct:35, detoxBars:[['拒绝力',20],['边界感',25],['自我优先',30]],
+    detoxTips:['河豚炸毛先别急着收拾，晾10分钟让锅多躺一会儿','练习「延迟接锅」：「我先看下手头的活，稍后回复你」','每天留一件「只为自己」的事，练「我」比「别人」重要'],
+    coop:['你的克星是河豚型同事：TA一炸你就收锅，收着收着锅就长你身上了','化解条款：炸完的锅先放10分钟，清醒了再决定接不接','高压条款：你的「好」应该是礼物，不是义务'],
+    tame:['TA的「好的」有30%是「不好」，请听弦外之音','TA没拒绝≠没意见，TA只是没敢说','主动帮TA拒绝一次不合理需求，TA会偷偷感激很久'],
+    fatal:'你的「不」字在喉咙里排了 300 天的队，始终没被喊到号。边界感这种东西，一旦让出去，就很难再要回来——他们会觉得你「变了」。',
+    fatalQuote:'你的手机没有下班时间，因为你不配有。',
+    countdown:'距离学会拒绝：约 <em>200+ 天</em>——前提是先有人告诉你，拒绝不扣工资，天不会塌。',
+    countdownQuote:'你不是脾气好，你是脾气好欺负。',
+    nemesis:'河豚 🐡——它炸完的锅，总要有人收拾。那个人，一直是你。它炸得越圆，你擦得越弯。',
+    nemesisQuote:'它负责爆炸，你负责善后，堪称有毒搭配。',
+    keyword:'「<em>好</em>」',
+    keywordText:'全年说了 <span class="hl">1,460 个</span>「好的」，其中没有一个是真心的。你的嘴比你的心勤快了整整一年。',
+    fatalScenes:[
+      '周六早上的工作消息，你回「好的」的速度快过回对象消息',
+      '明明不是你的活，看没人接，默默说了句「我来吧」',
+      '被夸「靠谱」的次数越多，被塞的活就越多'
+    ],
+    countdownStages:[
+      '<em>0-30%</em>：「不」字在喉咙里排队，队伍长度逐渐失控',
+      '<em>31-70%</em>：开始幻想痛骂客户的画面，现实中回「收到马上改」',
+      '<em>71-100%</em>：深夜emo「为什么吃亏的总是我」，第二天继续「好的」'
+    ],
+    nemesisWhy:'河豚爆炸是应激，布偶猫接锅是习惯——它炸完拍拍屁股走人，锅落地的位置，永远是离你最近的地方。',
+    nemesisTips:[
+      '河豚炸毛时先别急着收拾，晾它10分钟——让锅在地上多躺一会儿',
+      '练习「延迟接锅」话术：「我先看下手头的活，稍后回复你」'
+    ],
+    keywordMoments:[
+      '<em>3月</em>：凌晨1点回复完「好的」，感觉自己像24小时便利店',
+      '<em>8月</em>：第30次替人背锅，甩锅侠当面夸你「你人真好」',
+      '<em>12月</em>：终于把「拒绝了一次」，写进了年度成就清单'
+    ]
+  },
+  relation: {
+    emoji:'🦎', name:'变色龙', title:'办公室氛围侦察兵',
+    desc:'进会议室 0.3 秒完成换色：领导在场是 protective 色，同事吐槽是吃瓜色，群里发言是保命色。你精通每一种脸色，唯独忘了自己原本是什么颜色。',
+    dims:['氛围雷达满格','读空气十级','真实发言 0 条'],
+    tags:['氛围侦察兵','读空气十级','0.3秒换色','真实自我休眠'],
+    stability:50,
+    strengths:'你是团队里的润滑剂兼情报中心。你让每次沟通都顺滑、每场会议都不冷场，领导放心、同事省心，你是行走的「高情商天花板」。',
+    strengthsTags:['高情商','沟通润滑剂','危机预判','八面玲珑'],
+    colorText:'在同事眼里，你是「永远得体、永远看不透」的存在。你的职场底色是「观」——你读过所有人的脸色，唯独很久没看自己的。',
+    detoxPct:50, detoxBars:[['真实表达',35],['情绪卸载',40],['自我认同',45]],
+    detoxTips:['蜜獾怼的是事，别代入成人——他对完线转头就忘','每周留一段「不营业时间」，只在真人朋友面前说真话','每周对信任的人说一次完整真心话，练「真实」这块肌肉'],
+    coop:['你的克星是蜜獾型同事：TA的直球让你的三幕剧彩排毫无意义','化解条款：把TA当「真实表达」的免费教练，学TA对事不对人','高压条款：圆滑是你的盾，真话才是你的锚'],
+    tame:['TA的沉默不代表同意，是在计算发言的安全成本','别逼TA当场表态，给TA私下说真话的通道','TA替你挡过很多雷，只是你不知道'],
+    fatal:'把太多算力花在揣摩人上。你以为这是生存智慧，其实是慢性耗电——电量都花在了「别人怎么想」上，没剩多少给「自己怎么活」。',
+    fatalQuote:'你是全公司最懂人心的人，也是最累的那一个。',
+    countdown:'距离精神耗尽：约 <em>60 天</em>。但你会先安静地交接好所有关系，体面地消失，像你从未真正存在过一样。',
+    countdownQuote:'你的离职通知会最短，因为你早就和每个人单独道过别了。',
+    nemesis:'蜜獾 🦡——它的直来直去，让你每次接话都像在拆弹。它一句话的事，你要在心里排练三幕剧。',
+    nemesisQuote:'它最羡慕你的圆滑，你最羡慕它的痛快。',
+    keyword:'「<em>观</em>」',
+    keywordText:'全年观察 <span class="hl">8,760 小时</span>人类行为，产出真实发言 <span class="hl">0 条</span>。你的办公室生存纪录片看多了，忘了自己也该有台词。',
+    fatalScenes:[
+      '领导一个眼神，你0.3秒判断出今天能不能提需求',
+      '群里领导发言后，你盯着「回复什么最得体」纠结了8分钟',
+      '两个领导意见相左，你在中间圆场，笑得比哭还累'
+    ],
+    countdownStages:[
+      '<em>0-30%</em>：读空气雷达全功率运转，电量肉眼可见地下降',
+      '<em>31-70%</em>：开始失眠复盘白天的对话，「刚才那句话是不是说错了」',
+      '<em>71-100%</em>：开口前要在脑内彩排三遍，真实自我已欠费停机'
+    ],
+    nemesisWhy:'蜜獾说话不过脑，变色龙说话过三遍脑——它的每一次直球，都是对你心理防线的一次精准暴击。它图个痛快，你搭上电量。',
+    nemesisTips:[
+      '蜜獾怼的通常是「事」，别代入成「人」——他对完线转头就忘',
+      '每周留一段「不营业时间」，只在真人朋友面前说真话充电'
+    ],
+    keywordMoments:[
+      '<em>1月</em>：年会敬酒词提前备好三个版本，现场用了一个半',
+      '<em>7月</em>：精准预判领导情绪，提前替全组挡了一次雷',
+      '<em>12月</em>：年度最佳演技——微笑听完两小时批评，回家路上才叹气'
+    ]
+  },
+  growth: {
+    emoji:'🦖', name:'恐龙', title:'技能树停在白垩纪',
+    desc:'你是办公室的活化石。三年前的技能用到现在，新工具一个没学，新业务一句插不上话。环境不变还好，环境一变，你就是陨石坠落的第一现场。',
+    dims:['技能树停更','重复劳动专家','舒适区钉子户'],
+    tags:['技能树停更','办公室活化石','舒适区钉子户','以不变应万变'],
+    stability:70,
+    strengths:'你是团队里的经验数据库——流程、坑点、历史遗留问题全在你脑子里。你的稳定输出，是项目不翻车的压舱石。',
+    strengthsTags:['经验丰富','流程精通','稳定可靠','踩坑百科'],
+    colorText:'在同事眼里，你是「很稳但有点老派」的存在。你的职场底色是「稳」——你以为自己是以不变应万变，其实是在跟时代玩捉迷藏。',
+    detoxPct:40, detoxBars:[['学习力',25],['好奇心',35],['危机感',45]],
+    detoxTips:['和树懒组队前先定闹钟：每月互查「这个月学了什么」','警惕「熟练感」——它不是资产，是分期付款的舒适区','每周花1小时碰一个新工具，不求会，先求见过'],
+    coop:['你的克星是树懒型同事：你们的互相认证让停滞有了合理性','化解条款：找一个和你完全相反的搭档当「进化闹钟」','高压条款：熟练是你的护城河，也可能是你的茧房'],
+    tame:['别当众说TA「技术老了」，TA只是没遇到学习的理由','给TA一个必须用新工具解决的问题，比培训管用','TA的经验是真的值钱，新方法+旧经验才是王炸'],
+    fatal:'用「熟练」掩护「停滞」。重复劳动的舒适区是温水，你就是那只青蛙——只是长得像恐龙，连挣扎都带着史前的从容。',
+    fatalQuote:'你的简历上次更新，还是上一个纪元的事。',
+    countdown:'距离被迫进化：约 <em>180 天</em>——取决于下一颗组织架构调整的陨石，什么时候划过你们公司的天际线。',
+    countdownQuote:'你不是被淘汰的，你是被「再等等看」拖没的。',
+    nemesis:'树懒 🦥——你们互相看着对方的躺平姿势，各自心安理得。两个停止生长的灵魂，互相盖章认证。',
+    nemesisQuote:'你俩的技能树，上次一起开花还是冰河时期。',
+    keyword:'「<em>稳</em>」',
+    keywordText:'全年技能树 commit 数：<span class="hl">0</span>，但踩过的坑一个没落下。稳定，但稳定地停在原地。',
+    fatalScenes:[
+      '新同事用10分钟搞定了你研究半天的活，用的还是你没听过的工具',
+      '开方案评审会全程旁听，插不上话，只会点头',
+      '简历里的技能清单，和三年前一字不差'
+    ],
+    countdownStages:[
+      '<em>0-30%</em>：舒适区固若金汤，「这套流程我熟」是口头禅',
+      '<em>31-70%</em>：开始注意到招聘要求里的新名词，一个都不认识',
+      '<em>71-100%</em>：组织架构图更新那天，你被调到了「综合支持组」'
+    ],
+    nemesisWhy:'树懒和恐龙是躺平界的失散兄弟——区别是树懒知道自己躺，恐龙觉得自己只是「稳」。两个停止生长的系统互相供氧，谁都醒不了。',
+    nemesisTips:[
+      '和树懒组队前先定个闹钟：每月互相检查一次「这个月学了什么」',
+      '警惕「熟练感」——它不是资产，是分期付款的舒适区'
+    ],
+    keywordMoments:[
+      '<em>4月</em>：部门引入新系统，你是最后一个学会登录的人',
+      '<em>9月</em>：和实习生互为师徒——你教他流程，他教你工具',
+      '<em>12月</em>：年终述职PPT和去年只换了日期，被领导当场看出'
+    ]
+  },
+  control: {
+    emoji:'🐴', name:'骡子', title:'蒙眼拉磨冠军',
+    desc:'你走得又快又稳，但方向从来不由你定。目标月月变，需求天天改，你像蒙着眼拉磨——跑得再远，也还在原地。你最大的KPI，是把别人的想法落地。',
+    dims:['方向盘不在手','执行力满级','白干常态化'],
+    tags:['蒙眼拉磨冠军','方向感外包','白干体质','执行力巨人'],
+    stability:65,
+    strengths:'你是领导最爱的执行者——指哪打哪、使命必达。你的落地能力和抗压性，是所有「想法」变成现实的关键一环。',
+    strengthsTags:['使命必达','抗压性强','落地能力','靠谱扛造'],
+    colorText:'在同事眼里，你是「很拼但方向成谜」的存在。你的职场底色是「转」——你跑得比谁都快，只是没人告诉过你终点在哪。',
+    detoxPct:60, detoxBars:[['目标确认',55],['向上管理',50],['留痕意识',65]],
+    detoxTips:['接任务先邮件确认目标和验收标准，变更全程留痕','学会「阶段交付」：每跑一圈停下来确认方向','每接一个任务先问「做到什么程度算完成」'],
+    coop:['你的克星是变色龙型上级：今天东风明天西风，你今天返工明天返工','化解条款：每次变更要书面确认，让拍脑袋变成有据可查','高压条款：会拉磨是本事，会看路才是进化'],
+    tame:['给TA派活前先想清楚方向——TA返工的成本是双倍的','TA不会喊累，第3次白干时去看看TA的朋友圈','让TA参与决策，你会得到拉磨+看路的双料选手'],
+    fatal:'把「服从」当职业素养。你执行力满分，却从没问过一句「为什么要往那儿跑」。磨盘不会带你去任何地方，只会磨平你的棱角和好奇心。',
+    fatalQuote:'你是最强的引擎，装在一辆没有方向盘的车上。',
+    countdown:'距离摘下眼罩：约 <em>90 天</em>——通常发生在第 N 次白干之后的某个深夜，你会突然想通。',
+    countdownQuote:'你流的汗没有一滴是为你自己流的。',
+    nemesis:'变色龙 🦎——它今天一个方向、明天一个方向，你今天白干一场、明天再白干一场。它的每次换色，都是你的一次返工。',
+    nemesisQuote:'它的意见是天气，你的加班是气候。',
+    keyword:'「<em>转</em>」',
+    keywordText:'全年原地转了 <span class="hl">365 圈</span>，里程数很高，位移为零。你不是没有努力，你是努力得不明显——对结果而言。',
+    fatalScenes:[
+      '项目方向一个月改了三次，三次方案都是你做的',
+      '你提的优化建议被驳回，两周后领导换个说法提了一模一样的',
+      '开会两小时，决议是「按我上次说的办」，而你是干活的'
+    ],
+    countdownStages:[
+      '<em>0-30%</em>：拉磨很稳，偶尔抬头看天，心想「快到了吧」',
+      '<em>31-70%</em>：开始记小本本——每次白干的原因、日期、责任人',
+      '<em>71-100%</em>：眼罩松动，你第一次问出了那个问题：「我们到底在往哪走？」'
+    ],
+    nemesisWhy:'变色龙的换色速度，就是你的返工频率——它每次顺应风向换一个说法，你就要连夜把磨重新装一遍。它的意见是天气，你的加班是气候。',
+    nemesisTips:[
+      '每次接任务先发邮件确认目标和验收标准，改方向时让变更留痕',
+      '学会「阶段交付」：别一次拉到终点，每跑一圈停下来确认方向'
+    ],
+    keywordMoments:[
+      '<em>3月</em>：方案V1-V7全部留存，堪称公司变更史活档案',
+      '<em>8月</em>：第12次「最后再改一版」，你默默把「最终版」从文件名里删掉',
+      '<em>12月</em>：复盘会上你只说了一句话：「全年四个项目，其实是同一个。」'
+    ]
+  }
+};
+
+const LEVELS = [
+  {min:0,  name:'微毒', emoji:'🌿', slogan:'空气清新区 · 你的工位毒含量接近山泉水', color:'#34d399',
+   text:'该加的班没加，该怼的会怼了，工作对你来说只是打卡的地方。请保持，并拒绝任何破坏你生态的行为。'},
+  {min:36, name:'轻毒', emoji:'🐝', slogan:'蚊叮虫咬区 · 偶尔有点烦，睡一觉就好', color:'#a3e635',
+   text:'毒性还在可控范围，但注意：小毒不排，会攒成慢性中毒。建议定期发疯，科学排毒。'},
+  {min:51, name:'中毒', emoji:'☣️', slogan:'毒性渗透区 · 毒已经进了血液', color:'#fbbf24',
+   text:'你开始失眠、烦躁、深夜刷辞职帖。建议立即启动解毒程序：理边界、留证据、更新简历，三件套安排上。'},
+  {min:66, name:'重毒', emoji:'💀', slogan:'深度中毒区 · 快乐已经停更 90 天', color:'#fb923c',
+   text:'周一焦虑是你的常驻状态，身体在报警，心在写辞职信。这不是矫情，这是中毒反应，请严肃对待。'},
+  {min:81, name:'剧毒', emoji:'☠️', slogan:'病入膏肓区 · 人社局都想来看你了', color:'#f43f5e',
+   text:'你已经和工位融为一体——但那是恐怖片。这个毒性再泡下去，建议直接开跑，别回头，跑就完了。'}
+];
+
+const CODES = ['TEST123','TOXIC666','LIZHI888','GONGWEI01','YASHI2026','NEIJUAN99','MOYU520','FANNEI01'];
+const MAX_USES = 3;
+
+const LOAD_TIPS = [
+  '正在提取你的情绪残留物…',
+  '正在扫描工位毒性浓度…',
+  '正在比对 8 种职场生存动物基因…',
+  '正在计算你的离职倒计时…',
+  '正在生成本年度职场病历…'
+];
+
+/* ================= 状态 ================= */
+let currentCode = '';
+let qIndex = 0;
+let answers = [];   // 每题 1~5
+const OPT_LABELS = ['从不','偶尔','有时','经常','总是'];
+
+/* ================= 工具 ================= */
+const $ = id => document.getElementById(id);
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  $(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+function toast(msg){
+  const t = $('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(()=>t.classList.remove('show'), 2200);
+}
+/* ===== Supabase 云端配置（部署时填入；留空则自动使用本地模式） ===== */
+const SUPABASE_URL = '';
+const SUPABASE_ANON_KEY = '';
+
+function getStore(){ try{ return JSON.parse(localStorage.getItem('tox_codes')||'{}'); }catch(e){ return {}; } }
+function setStore(s){ try{ localStorage.setItem('tox_codes', JSON.stringify(s)); }catch(e){} }
+function cloudMode(){ return !!(SUPABASE_URL && SUPABASE_ANON_KEY); }
+
+/* ================= 激活码 ================= */
+function codeFail(msg){ $('codes-msg').textContent = msg; $('modal-codes').classList.add('show'); }
+function acceptCode(code){
+  currentCode = code;
+  $('q-code-tag').textContent = '🔑 ' + code.slice(0,2) + '**' + code.slice(-2);
+  startQuiz();
+}
+function localValidate(code){
+  if(!CODES.includes(code)){ codeFail('激活码不存在，请检查后重新输入'); return; }
+  const store = getStore();
+  if((store[code]||0) >= MAX_USES){ codeFail('该激活码已测试满 ' + MAX_USES + ' 次，无法再次使用'); return; }
+  acceptCode(code);
+}
+async function initCode(){
+  const code = $('code-input').value.trim().toUpperCase();
+  if(!code){ toast('请先输入激活码'); return; }
+  if(!cloudMode()){ localValidate(code); return; }
+  const btn = $('btn-start');
+  btn.disabled = true; btn.textContent = '验证中…';
+  try{
+    const res = await fetch(SUPABASE_URL + '/rest/v1/rpc/use_code', {
+      method:'POST',
+      headers:{ 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY, 'Content-Type':'application/json' },
+      body: JSON.stringify({ p_code: code })
+    });
+    const data = await res.json();
+    if(res.ok && data && data.ok){ acceptCode(code); }
+    else if(res.ok && data && data.reason === 'exhausted'){ codeFail('该激活码使用次数已用完（每码限 ' + MAX_USES + ' 次）'); }
+    else if(res.ok && data && data.reason === 'not_found'){ codeFail('激活码不存在，请检查后重新输入'); }
+    else { codeFail('云端校验异常（' + res.status + '），请稍后重试或联系客服'); }
+  }catch(e){
+    toast('云端连接失败，已切换本地校验模式');
+    localValidate(code);
+  }finally{
+    btn.disabled = false; btn.textContent = '开始测试 →';
+  }
+}
+
+/* ================= 答题 ================= */
+function startQuiz(){
+  qIndex = 0;
+  answers = [];
+  showPage('page-quiz');
+  renderQuestion();
+}
+function renderQuestion(){
+  const q = QUESTIONS[qIndex];
+  const dim = DIMENSIONS.find(d=>d.key===q.d);
+  $('q-progress-text').textContent = '第 ' + (qIndex+1) + ' / ' + QUESTIONS.length + ' 题';
+  $('progress-bar').style.width = ((qIndex) / QUESTIONS.length * 100) + '%';
+  $('q-num').textContent = 'Q' + (qIndex+1) + ' · ' + dim.name;
+  $('q-text').textContent = q.t;
+  const opts = $('opts');
+  opts.innerHTML = '';
+  OPT_LABELS.forEach((label,i)=>{
+    const el = document.createElement('div');
+    el.className = 'opt' + (answers[qIndex] === i+1 ? ' sel' : '');
+    el.innerHTML = '<span class="opt-key">' + (i+1) + '</span>' + label;
+    el.onclick = ()=> chooseAnswer(i+1);
+    opts.appendChild(el);
+  });
+  $('btn-back').style.display = qIndex > 0 ? 'block' : 'none';
+}
+function chooseAnswer(v){
+  answers[qIndex] = v;
+  if(qIndex < QUESTIONS.length - 1){
+    qIndex++;
+    renderQuestion();
+    $('q-card').style.animation = 'none';
+    void $('q-card').offsetWidth;
+    $('q-card').style.animation = 'pop .4s ease both';
+  } else {
+    finishQuiz();
+  }
+}
+function goBack(){
+  if(qIndex > 0){ qIndex--; renderQuestion(); }
+}
+
+/* ================= 计分 ================= */
+function calcResult(){
+  const dimScores = {};
+  DIMENSIONS.forEach(d=>{
+    const qs = QUESTIONS.map((q,i)=>({q,i})).filter(x=>x.q.d===d.key);
+    let raw = 0;
+    qs.forEach(x=>{
+      const v = answers[x.i] || 3;
+      raw += x.q.r ? (6 - v) : v;
+    });
+    dimScores[d.key] = Math.round((raw - 6) / 24 * 100); // 0~100
+  });
+  const total = Math.round(DIMENSIONS.reduce((s,d)=>s+dimScores[d.key],0) / DIMENSIONS.length);
+  let level = LEVELS[0];
+  LEVELS.forEach(l=>{ if(total >= l.min) level = l; });
+  const topDim = DIMENSIONS.slice().sort((a,b)=>dimScores[b.key]-dimScores[a.key])[0];
+  return { dimScores, total, level, animal: ANIMALS[topDim.key], topKey: topDim.key };
+}
+
+/* ================= 完成测试 ================= */
+function finishQuiz(){
+  // 计入激活码使用次数（云端模式下由 Supabase 已在进入时计数，本地模式在此计数）
+  if(!cloudMode()){
+    const store = getStore();
+    store[currentCode] = (store[currentCode] || 0) + 1;
+    setStore(store);
+  }
+
+  showPage('page-loading');
+  let tipIdx = 0;
+  $('load-tip').textContent = LOAD_TIPS[0];
+  const tipTimer = setInterval(()=>{
+    tipIdx = (tipIdx + 1) % LOAD_TIPS.length;
+    $('load-tip').textContent = LOAD_TIPS[tipIdx];
+  }, 900);
+
+  setTimeout(()=>{
+    clearInterval(tipTimer);
+    renderResult(calcResult());
+    showPage('page-result');
+  }, 4200);
+}
+
+/* ================= 渲染结果 ================= */
+/* 维度解读文案（按得分区间） */
+const DIM_READ = {
+  emotion:{ high:'你的情绪电池已经严重亏电。不是你不坚强，是这份工作消耗情绪的速度远超你充电的速度——再硬的电池，也架不住一直放电不充电。', mid:'你的情绪账户还有余额，但支出速度偏快。目前的疲惫还在可回血范围，注意别让「偶尔透支」变成常态。', low:'你的情绪状态相当健康。工作没有过度侵蚀你的生活，你的快乐储备充足——这是很多人羡慕不来的职场奢侈品。' },
+  overload:{ high:'你正处于明显的超载状态。任务像仓鼠的腮帮子一样只进不出，你的时间被切得粉碎——长此以往，身体会先于意识报警。', mid:'你的负荷偏高但还没爆仓。偶尔的赶工你能消化，但要警惕「临时需求」一点点蚕食你的整块时间。', low:'你的工作量在健康区间，基本能掌控自己的节奏。这种从容，本身就是一种职场竞争力。' },
+  fairness:{ high:'你感知到了强烈的失衡感。付出与回报的错位、规则的差异对待，正在持续消耗你对组织的信任——这是心理契约松动的典型信号。', mid:'你偶尔会感到不公平，但还没到动摇根基的程度。这种感受值得关注，它可能是更大失望的前兆。', low:'你感受到的职场公平感良好。回报与付出相匹配，这种「心理契约」的完整，是你能安心做事的底层保障。' },
+  meaning:{ high:'你的意义感已经严重掉线。每天的工作像在完成别人的KPI，你看不到自己创造的价值——而意义感，恰恰是长期职业动力的燃料。', mid:'你能从工作中获得部分价值感，但浓度不足。你时不时会冒出「这有什么意义」的疑问，值得认真回应它。', low:'你清楚地知道自己为何而工作。这份意义感是你的内置发动机，比任何鸡汤都持久。' },
+  boundary:{ high:'你的个人边界已经大面积失守。下班被召唤、假期被打断、不敢说不——你的生活正在被工作殖民，而你会是最后一个承认的人。', mid:'你的边界有缺口但尚未沦陷。你偶尔为工作让渡生活，还算可控，但需要警惕缺口扩大。', low:'你的边界感很健康，分得清「工作」和「生活」的主权范围。这种能力在当下职场里非常稀缺。' },
+  relation:{ high:'你正处于高耗能的人际环境。甩锅、抢功、话被无视——你花在「应对人」上的精力可能已超过「做事」本身，这是隐形成本最高的毒性来源。', mid:'你的人际环境有些摩擦但不致命。大部分协作还算顺畅，只是个别关系在持续消耗你的情绪。', low:'你的职场关系相当清爽。人际摩擦少、协作信任高，你的精力能真正用在事情上。' },
+  growth:{ high:'你的成长曲线已经趋平甚至下滑。重复的劳动、消失的挑战，你的技能树正在悄悄荒芜——而停滞本身，就是最大的职业风险。', mid:'你还有成长，但速度放缓。偶尔的新挑战让你保持手感，不过你需要更多「跳一跳才够得着」的目标。', low:'你正处于上升通道。新挑战和新知识还在持续输入，你的职业复利正在累积。' },
+  control:{ high:'你的方向盘几乎完全不在自己手里。节奏、目标、优先级都由别人定义，你的努力常常在「被打断重置」中贬值——这是倦怠的重要来源。', mid:'你保留了一部分自主权，但时不时被收走。整体尚可，只是在关键事项上你希望有更多话语权。', low:'你对工作有充分的掌控感：节奏自己定、方法自己选——自主权，是职场幸福感最稳定的来源。' }
+};
+const BAR_COLORS = ['#f43f5e','#fb923c','#fbbf24','#a3e635','#2dd4bf','#60a5fa','#a78bfa','#f472b6'];
+
+/* ================= 渲染结果 ================= */
+function renderResult(r){
+  $('rc-date').textContent = new Date().toLocaleDateString('zh-CN') + ' · 检测编号 ' + Date.now().toString(36).toUpperCase();
+  const a = r.animal;
+
+  $('animal-emoji').textContent = a.emoji;
+  $('animal-name').textContent = a.name;
+  $('animal-title').textContent = '「' + a.title + '」';
+  $('animal-desc').textContent = a.desc;
+  $('animal-tags').innerHTML = a.tags.map(t=>'<span class="t">' + t + '</span>').join('');
+  $('stat-toxic').textContent = (r.total/20).toFixed(1);
+  $('stat-level').textContent = r.level.name;
+  $('stat-stable').textContent = a.stability + '%';
+
+  const sorted = DIMENSIONS.slice().sort((x,y)=>r.dimScores[y.key]-r.dimScores[x.key]);
+  $('dims-list').innerHTML = sorted.map(d=>{
+    const i = DIMENSIONS.indexOf(d), v = r.dimScores[d.key];
+    return '<div class="dim-row"><div class="dim-head"><span>' + d.name + '</span><b style="color:' + BAR_COLORS[i] + '">' + (v/10).toFixed(1) + '</b></div>' +
+      '<div class="dim-track"><div class="dim-fill" style="background:' + BAR_COLORS[i] + '" data-w="' + v + '"></div></div></div>';
+  }).join('');
+  setTimeout(()=>{
+    document.querySelectorAll('#dims-list .dim-fill').forEach(el=>{ el.style.width = el.dataset.w + '%'; });
+  }, 250);
+
+  $('dim-read').innerHTML = sorted.slice(0,3).map(d=>{
+    const v = r.dimScores[d.key];
+    const band = v >= 66 ? 'high' : (v >= 36 ? 'mid' : 'low');
+    return '<p class="txt"><b>「' + d.name + '」' + (v/10).toFixed(1) + ' 分：</b>' + DIM_READ[d.key][band] + '</p>';
+  }).join('');
+
+  $('strength-text').innerHTML = a.strengths;
+  $('strength-tags').innerHTML = a.strengthsTags.map(t=>'<span class="gt">' + t + '</span>').join('');
+
+  $('weak-text').innerHTML = a.fatal;
+  const fillList = (id, arr)=> $(id).innerHTML = arr.map((t,i)=>
+    '<div class="li"><span class="dot">' + (i+1) + '</span><span>' + t + '</span></div>').join('');
+  fillList('weak-list', a.fatalScenes);
+  fillList('signal-list', a.countdownStages);
+
+  $('color-text').innerHTML = a.colorText;
+  $('color-tags').innerHTML = a.dims.map(t=>'<span class="t">' + t + '</span>').join('');
+
+  $('detox-pct').textContent = a.detoxPct;
+  $('detox-label').innerHTML = '当前解毒进度。<br>距离完全解毒还差 <i style="color:#6ee7b7;font-style:normal;font-weight:700">' + (100 - a.detoxPct) + '%</i> 的功力，坚持执行下方清单。';
+  $('detox-bars').innerHTML = a.detoxBars.map(b=>
+    '<div class="dim-row"><div class="dim-head"><span>' + b[0] + '</span><b>' + b[1] + '</b></div>' +
+    '<div class="dim-track"><div class="dim-fill" style="background:linear-gradient(90deg,#34d399,#6ee7b7)" data-w="' + b[1] + '"></div></div></div>').join('');
+  setTimeout(()=>{
+    document.querySelectorAll('#detox-bars .dim-fill').forEach(el=>{ el.style.width = el.dataset.w + '%'; });
+  }, 350);
+  fillList('detox-list', a.detoxTips);
+  fillList('coop-list', a.coop);
+
+  $('tame-animal').textContent = a.name;
+  fillList('tame-list', a.tame);
+
+  const kw = a.keyword.replace(/[「」]|<\/?em>/g, '');
+  $('kw-big').textContent = kw;
+  $('kw-text').innerHTML = '<b>' + kw + '</b> —— ' + a.keywordText;
+  fillList('kw-list', a.keywordMoments);
+
+  $('rc-foot-line').textContent = '我是' + a.name + '，毒性指数 ' + (r.total/20).toFixed(1) + '，你的呢？';
+
+  lastResult = r;
+}
+let lastResult = null;
+
+/* ================= 保存长图 ================= */
+function saveImage(){
+  const node = $('result-card');
+  if(typeof html2canvas === 'undefined'){ toast('长图组件加载失败，请检查网络后重试'); return; }
+  if(location.protocol === 'file:'){
+    toast('检测到 file:// 打开，保存可能失败，建议用 http:// 访问');
+  }
+  toast('长图生成中，请稍候…');
+  html2canvas(node, { backgroundColor:'#150c2e', scale:2, useCORS:true }).then(canvas=>{
+    const a = document.createElement('a');
+    a.href = canvas.toDataURL('image/png');
+    a.download = '职场毒性报告_' + lastResult.animal.name + '.png';
+    a.click();
+    toast('长图已保存 ✓ 记得分享给同事');
+  }).catch(()=>{
+    toast('保存失败：请通过 http:// 访问本页面后重试');
+  });
+}
+
+/* ================= 分享链接 ================= */
+function shareLink(){
+  if(!lastResult) return;
+  const payload = btoa(encodeURIComponent(JSON.stringify({
+    a: Object.keys(ANIMALS).indexOf(lastResult.topKey),
+    l: LEVELS.indexOf(lastResult.level),
+    s: lastResult.total
+  })));
+  const url = location.origin + location.pathname + '#r=' + payload;
+  copyText(url).then(ok=>{
+    toast(ok ? '链接已复制 ✓ 发给好友看 TA 的毒性' : '复制失败，请手动复制地址栏链接');
+  });
+}
+function copyText(text){
+  if(navigator.clipboard && window.isSecureContext){
+    return navigator.clipboard.writeText(text).then(()=>true).catch(()=>fallbackCopy(text));
+  }
+  return Promise.resolve(fallbackCopy(text));
+}
+function fallbackCopy(text){
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.cssText = 'position:fixed;opacity:0';
+  document.body.appendChild(ta);
+  ta.select();
+  let ok = false;
+  try{ ok = document.execCommand('copy'); }catch(e){}
+  document.body.removeChild(ta);
+  return ok;
+}
+
+/* ================= 好友结果解析 ================= */
+function parseFriendResult(){
+  const m = location.hash.match(/#r=(.+)$/);
+  if(!m) return;
+  try{
+    const data = JSON.parse(decodeURIComponent(atob(m[1])));
+    const keys = Object.keys(ANIMALS);
+    const animal = ANIMALS[keys[data.a]];
+    const level = LEVELS[data.l] || LEVELS[2];
+    $('friend-emoji').textContent = animal.emoji;
+    $('friend-name').textContent = animal.name + ' · ' + animal.title;
+    $('friend-level').textContent = level.emoji + ' ' + level.name + ' · 毒性指数 ' + data.s;
+    $('friend-card').style.display = 'block';
+  }catch(e){}
+}
+
+/* ================= 事件绑定 ================= */
+$('btn-start').onclick = initCode;
+$('code-input').addEventListener('keydown', e=>{ if(e.key === 'Enter') initCode(); });
+$('btn-back').onclick = goBack;
+$('btn-save').onclick = saveImage;
+$('btn-share').onclick = shareLink;
+$('btn-retest').onclick = ()=>{ showPage('page-home'); };
+$('gift-strip').onclick = ()=> $('modal-gift').classList.add('show');
+$('btn-gift-ok').onclick = ()=> $('modal-gift').classList.remove('show');
+$('btn-codes-ok').onclick = ()=> $('modal-codes').classList.remove('show');
+
+parseFriendResult();
+</script>
+</body>
+</html>
